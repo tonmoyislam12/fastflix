@@ -2,8 +2,10 @@
 
 ## Version 4.2.0
 
+* Adding hdr10plus_parser as part of the bundle
 * Adding ability to extract HDR10+ metadata
 * Adding #178 selector for number of autocrop positions throughout video (thanks to bmcassagne)
+* Changing from MIT license to GPL
 
 ## Version 4.1.2
 

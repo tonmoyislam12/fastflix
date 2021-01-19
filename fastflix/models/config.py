@@ -4,10 +4,12 @@ import shutil
 from distutils.version import StrictVersion
 from pathlib import Path
 from typing import Dict, List, Optional
+import pkg_resources
 
 from appdirs import user_data_dir
 from box import Box, BoxError
 from pydantic import BaseModel, Field
+import reusables
 
 from fastflix.exceptions import ConfigError, MissingFF
 from fastflix.models.encode import (
@@ -113,13 +115,29 @@ def find_ffmpeg_file(name, raise_on_missing=False):
     return None
 
 
+def find_bundled(name, unbundled=False):
+    tool = Path(pkg_resources.resource_filename(__name__, f"../../tools/{name}{'.exe' if reusables.win_based else ''}"))
+    if not tool.exists():
+        if not unbundled:
+            logger.error(f"Could not find bundled {name} at {tool}")
+            return None
+        tool = shutil.which(f"{name}{'.exe' if reusables.win_based else ''}")
+        if not tool:
+            logger.error(f"Could not find {name} on the PATH")
+            return None
+    return tool
+
+
+ignore_in_config_file = ("config_path", "hdr10plus_parser", "mkvpropedit")
+
+
 class Config(BaseModel):
     version: str = __version__
     config_path: Path = fastflix_folder / "fastflix.yaml"
     ffmpeg: Path = Field(default_factory=lambda: find_ffmpeg_file("ffmpeg"))
     ffprobe: Path = Field(default_factory=lambda: find_ffmpeg_file("ffprobe"))
-    hdr10plus_parser: Path = Field(default_factory=lambda: Path(shutil.which("hdr10plus_parser")))
-    mkvpropedit: Path = Field(default_factory=lambda: Path(shutil.which("mkvpropedit")))
+    hdr10plus_parser: Path = Field(default_factory=lambda: find_bundled("hdr10plus_parser"))
+    mkvpropedit: Path = Field(default_factory=lambda: find_bundled("mkvpropedit", unbundled=True))
     flat_ui: bool = True
     language: str = "en"
     logging_level: int = 10
@@ -213,7 +231,7 @@ class Config(BaseModel):
 
                     self.profiles[k] = profile
                 continue
-            if key in self and key not in ("config_path", "version"):
+            if key in self and key not in ignore_in_config_file + ("version",):
                 setattr(self, key, Path(value) if key in paths and value else value)
 
         if not self.ffmpeg or not self.ffmpeg.exists():
@@ -233,7 +251,8 @@ class Config(BaseModel):
 
     def save(self):
         items = self.dict()
-        del items["config_path"]
+        for key in ignore_in_config_file:
+            del items[key]
         for k, v in items.items():
             if isinstance(v, Path):
                 items[k] = str(v.absolute())

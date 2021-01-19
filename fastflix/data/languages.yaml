@@ -2777,3 +2777,17 @@ Bufsize:
   ita: Bufsize
   spa: Bufsize
   zho: Bufsize
+'Detect HDR10+':
+  deu: 'HDR10+ erkennen'
+  eng: 'Detect HDR10+'
+  fra: 'Détecter le HDR10+'
+  ita: 'Rileva HDR10+'
+  spa: 'Detectar HDR10+'
+  zho: '检测HDR10+'
+'Extracting HDR10+ metadata':
+  deu: 'Extrahieren von HDR10+ Metadaten'
+  eng: 'Extracting HDR10+ metadata'
+  fra: 'Extraction des métadonnées HDR10+'
+  ita: 'Estrazione dei metadati HDR10+'
+  spa: 'Extracción de metadatos HDR10+'
+  zho: '提取HDR10+元数据'

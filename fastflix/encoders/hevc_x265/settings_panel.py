@@ -11,7 +11,7 @@ from fastflix.language import t
 from fastflix.models.encode import x265Settings
 from fastflix.models.fastflix_app import FastFlixApp
 from fastflix.resources import warning_icon, loading_movie
-from fastflix.shared import link
+from fastflix.shared import link, error_message
 from fastflix.widgets.background_tasks import ExtractHDR10
 
 logger = logging.getLogger("fastflix")
@@ -65,6 +65,7 @@ def get_breaker():
 class HEVC(SettingPanel):
     profile_name = "x265"
     hdr10plus_signal = QtCore.Signal(str)
+    hdr10plus_stop_signal = QtCore.Signal()
 
     def __init__(self, parent, main, app: FastFlixApp):
         super().__init__(parent, main, app)
@@ -156,9 +157,13 @@ class HEVC(SettingPanel):
         label.setPixmap(icon.pixmap(22))
         layout = QtWidgets.QHBoxLayout()
 
-        self.extract_button = QtWidgets.QPushButton(t("Extract HDR10+"))
+        self.extract_button = QtWidgets.QPushButton(f'{t("Extract")} HDR10+')
         self.extract_button.hide()
         self.extract_button.clicked.connect(self.extract_hdr10plus)
+
+        self.extract_cancel = QtWidgets.QPushButton(t("Cancel"))
+        self.extract_cancel.hide()
+        self.extract_cancel.clicked.connect(self.stop_extract)
 
         self.extract_label = QtWidgets.QLabel(self)
         self.extract_label.hide()
@@ -168,6 +173,7 @@ class HEVC(SettingPanel):
 
         layout.addWidget(self.extract_button)
         layout.addWidget(self.extract_label)
+        layout.addWidget(self.extract_cancel)
 
         layout.addWidget(label)
         layout.addLayout(self.init_dhdr10_opt())
@@ -176,17 +182,36 @@ class HEVC(SettingPanel):
     def extract_hdr10plus(self):
         self.extract_button.hide()
         self.extract_label.show()
+        self.extract_cancel.show()
         self.movie.start()
         # self.extracting_hdr10 = True
-        self.extract_thrad = ExtractHDR10(self.app, self.main, signal=self.hdr10plus_signal)
-        self.extract_thrad.start()
+        self.extract_thread = ExtractHDR10(
+            self.app, self.main, signal=self.hdr10plus_signal, stop_signal=self.hdr10plus_stop_signal
+        )
+        self.extract_thread.start()
 
-    def done_hdr10plus_extract(self, metadata: str):
+    def done_hdr10plus_extract(self, message: str):
+        status, data = message.split("|", 1)
         self.extract_button.show()
         self.extract_label.hide()
+        self.extract_cancel.hide()
         self.movie.stop()
-        if Path(metadata).exists():
-            self.widgets.hdr10plus_metadata.setText(metadata)
+        if status == "STOPPED":
+            return
+        if status == "COMPLETE" and Path(data).exists():
+            self.widgets.hdr10plus_metadata.setText(data)
+        if status == "ERROR":
+            error_message(f"Could not extract HDR10+ Information:\n{data}")
+        if status == "ERRORCODE":
+            error_message(f"Could not extract HDR10+ Information:\nError Code {data}")
+
+    def stop_extract(self):
+        self.hdr10plus_stop_signal.emit()
+        # self.extract_thread.terminate()
+        self.extract_button.show()
+        self.extract_label.hide()
+        self.extract_cancel.hide()
+        self.movie.stop()
 
     def init_x265_row(self):
         layout = QtWidgets.QHBoxLayout()

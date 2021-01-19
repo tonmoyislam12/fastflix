@@ -109,11 +109,27 @@ class ExtractSubtitleSRT(QtCore.QThread):
 
 
 class ExtractHDR10(QtCore.QThread):
-    def __init__(self, app: FastFlixApp, main, signal):
+    def __init__(self, app: FastFlixApp, main, signal, stop_signal):
         super().__init__(main)
         self.main = main
         self.app = app
         self.signal = signal
+        self.stop_signal = stop_signal
+        self.process_one = None
+        self.process_two = None
+        self.stop_signal.connect(self.stop)
+        self.stopped = False
+
+    def stop(self):
+        self.stopped = True
+        try:
+            self.process_two.terminate()
+        except Exception as err:
+            self.main.thread_logging_signal.emit(f"ERROR:{err}")
+        try:
+            self.process_one.terminate()
+        except Exception as err:
+            self.main.thread_logging_signal.emit(f"ERROR:{err}")
 
     def run(self):
 
@@ -121,38 +137,51 @@ class ExtractHDR10(QtCore.QThread):
 
         self.main.thread_logging_signal.emit(f'INFO:{t("Extracting HDR10+ metadata")} to {output}')
 
-        process = Popen(
-            [
-                self.app.fastflix.config.ffmpeg,
-                "-y",
-                "-i",
-                str(self.app.fastflix.current_video.source).replace("\\", "/"),
-                "-map",
-                f"0:{self.app.fastflix.current_video.video_settings.selected_track}",
-                "-loglevel",
-                "panic",
-                "-c:v",
-                "copy",
-                "-vbsf",
-                "hevc_mp4toannexb",
-                "-f",
-                "hevc",
-                "-",
-            ],
-            stdout=PIPE,
-            stderr=PIPE,
-            stdin=PIPE,  # FFmpeg can try to read stdin and wrecks havoc
-        )
+        try:
+            self.process_one = Popen(
+                [
+                    self.app.fastflix.config.ffmpeg,
+                    "-y",
+                    "-i",
+                    str(self.app.fastflix.current_video.source).replace("\\", "/"),
+                    "-map",
+                    f"0:{self.app.fastflix.current_video.video_settings.selected_track}",
+                    "-loglevel",
+                    "panic",
+                    "-c:v",
+                    "copy",
+                    "-vbsf",
+                    "hevc_mp4toannexb",
+                    "-f",
+                    "hevc",
+                    "-",
+                ],
+                stdout=PIPE,
+                stderr=PIPE,
+                stdin=PIPE,  # FFmpeg can try to read stdin and wrecks havoc
+            )
 
-        process_two = Popen(
-            ["hdr10plus_parser", "-o", str(output).replace("\\", "/"), "-"],
-            stdout=PIPE,
-            stderr=PIPE,
-            stdin=process.stdout,
-            encoding="utf-8",
-            cwd=str(self.app.fastflix.current_video.work_path),
-        )
+            self.process_two = Popen(
+                ["hdr10plus_parser", "-o", str(output).replace("\\", "/"), "-"],
+                stdout=PIPE,
+                stderr=PIPE,
+                stdin=self.process_one.stdout,
+                encoding="utf-8",
+                cwd=str(self.app.fastflix.current_video.work_path),
+            )
 
-        stdout, stderr = process_two.communicate()
-        self.main.thread_logging_signal.emit(f"DEBUG: HDR10+ Extract: {stdout}")
-        self.signal.emit(str(output))
+            stdout, stderr = self.process_two.communicate()
+        except Exception as err:
+            self.main.thread_logging_signal.emit(f"ERROR: HDR10+ Extract error: {err}")
+            self.signal.emit(f"ERROR|{err}")
+        else:
+            if self.stopped:
+                self.signal.emit(f"STOPPED|STOPPED")
+                return
+            self.main.thread_logging_signal.emit(f"DEBUG: HDR10+ Extract output: {stdout}")
+            if stderr:
+                self.main.thread_logging_signal.emit(f"ERROR: HDR10+ Extract error: {stderr}")
+            if self.process_two.poll() == 0:
+                self.signal.emit(f"COMPLETE|{str(output)}")
+            else:
+                self.signal.emit(f"ERRORCODE|{self.process_two.poll()}")

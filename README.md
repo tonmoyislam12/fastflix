@@ -88,8 +88,9 @@ FastFlix does not plan to support Dolby Vision's proprietary format at this time
 
 Copyright (C) 2019-2021 Chris Griffith
 
-The code itself is licensed under the MIT which you can read in the `LICENSE` file. <br>
-Read more about the release licensing in the [docs](docs/README.md) folder. <br>
+FastFlix is licensed under the GPLv3 which you can read in the `LICENSE` file.
+
+Read more about the various tool licenses in the [docs](docs/README.md) folder.
 
 Encoder icons for [VP9](https://commons.wikimedia.org/wiki/File:Vp9-logo-for-mediawiki.svg) and [AOM AV1](https://commons.wikimedia.org/wiki/File:AV1_logo_2018.svg) are from Wikimedia Commons all others are self created.
 
