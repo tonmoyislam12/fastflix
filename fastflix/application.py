@@ -61,6 +61,7 @@ def init_encoders(app: FastFlixApp, **_):
     from fastflix.encoders.webp import main as webp_plugin
     from fastflix.encoders.nvencc_hevc import main as nvencc_plugin
     from fastflix.encoders.nvencc_avc import main as nvencc_avc_plugin
+    from fastflix.encoders.vvenc import main as vvenc_plugin
 
     encoders = [
         hevc_plugin,
@@ -68,6 +69,7 @@ def init_encoders(app: FastFlixApp, **_):
         av1_plugin,
         rav1e_plugin,
         svt_av1_plugin,
+        vvenc_plugin,
         avc_plugin,
         vp9_plugin,
         gif_plugin,

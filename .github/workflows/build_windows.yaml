@@ -26,6 +26,14 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
+    - name: Build vvenc
+      shell: cmd
+      run: |
+        git clone https://github.com/fraunhoferhhi/vvenc.git
+        cd vvenc
+        make install-release
+        move bin\release-static\*.exe ..\
+
     - name: Insatll requirements
       shell: cmd
       run: |

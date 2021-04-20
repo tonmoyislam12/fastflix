@@ -225,6 +225,18 @@ class CopySettings(EncoderSettings):
     name = "Copy"
 
 
+class VVenCSettings(EncoderSettings):
+    name = "VVC (VVenC)"
+    preset: str = "medium"  # faster, fast, medium, slow, slower
+    threads: int = 8
+    tier: str = "main"
+    passes: int = 2
+    refreshsec: int = 1
+    qp: Optional[int] = 32
+    qpa: bool = False
+    bitrate: Optional[str] = None
+
+
 setting_types = {
     "x265": x265Settings,
     "x264": x264Settings,
@@ -238,4 +250,5 @@ setting_types = {
     "ffmpeg_hevc_nvenc": FFmpegNVENCSettings,
     "nvencc_hevc": NVEncCSettings,
     "nvencc_avc": NVEncCAVCSettings,
+    "vvenc": VVenCSettings,
 }
