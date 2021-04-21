@@ -39,9 +39,9 @@ recommended_qp = [
     "27",
     "28",
     "29",
-    "30 - standard",
+    "30",
     "31",
-    "32",
+    "32 - standard",
     "33",
     "34",
     "35",
@@ -67,13 +67,13 @@ class VVenC(SettingPanel):
         self.mode = "QP"
 
         grid.addLayout(self.init_preset(), 0, 0, 1, 2)
-        # grid.addLayout(self.init_pix_fmt(), 1, 0, 1, 2)
+        grid.addLayout(self.init_pix_fmt(), 1, 0, 1, 2)
         # grid.addLayout(self.init_tile_rows(), 2, 0, 1, 2)
         # grid.addLayout(self.init_tile_columns(), 3, 0, 1, 2)
         grid.addLayout(self.init_tier(), 4, 0, 1, 2)
         # # grid.addLayout(self.init_sc_detection(), 6, 0, 1, 2)
         # grid.addLayout(self.init_max_mux(), 5, 0, 1, 2)
-        # grid.addLayout(self.init_modes(), 0, 2, 5, 4)
+        grid.addLayout(self.init_modes(), 0, 2, 5, 4)
         # grid.addLayout(self.init_single_pass(), 5, 2, 1, 1)
 
         grid.setRowStretch(8, 1)

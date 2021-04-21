@@ -23,6 +23,7 @@ class BackgroundRunner:
         self.killed = False
         self.output_file = None
         self.error_output_file = None
+        self.ffmpeg_output_file = None
         self.log_queue = log_queue
         self.error_detected = False
         self.success_detected = False
@@ -63,6 +64,7 @@ class BackgroundRunner:
         logger.info(f"Running commands: {' '.join(command_one)} | {' '.join(command_two)}")
         Path(work_dir).mkdir(exist_ok=True, parents=True)
         self.output_file = Path(work_dir) / f"encoder_output_{secrets.token_hex(6)}.log"
+        self.ffmpeg_output_file = Path(work_dir) / f"ffmpeg_error_output_{secrets.token_hex(6)}.log"
         self.error_output_file = Path(work_dir) / f"encoder_error_output_{secrets.token_hex(6)}.log"
         self.output_file.touch(exist_ok=True)
         self.error_output_file.touch(exist_ok=True)
@@ -73,7 +75,7 @@ class BackgroundRunner:
             command_one,
             cwd=work_dir,
             stdout=PIPE,
-            stderr=PIPE,
+            stderr=open(self.ffmpeg_output_file, "w"),
             stdin=PIPE,  # FFmpeg can try to read stdin and wrecks havoc on linux
         )
 
