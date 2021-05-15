@@ -39,11 +39,12 @@ if __name__ == "__main__":
             extract_command = run(cmd, cwd=workdir)
             extract_command.check_returncode()
             archive.unlink()
-        if archive.is_file() and "hdr10plus_parser" in archive.name:
+        if archive.is_file() and "hdr10plus_parser" in archive.name and archive.name.endswith(".gz"):
             extract_command_1 = run([zipper, "e", str(archive.name)], cwd=workdir)
             extract_command_1.check_returncode()
-            print(list(Path("tools").iterdir()))
-            extract_command_2 = run([zipper, "e", f"-ohdr10plus_parser", "hdr10plus_parser.tar"], cwd=workdir)
+            tar_file = next(Path().glob("tools\hdr10plus_parser*.tar"))
+            cmd = [zipper, "e", f"-ohdr10plus_parser", str(tar_file.name)]
+            extract_command_2 = run(cmd, cwd=workdir)
             extract_command_2.check_returncode()
-            Path("hdr10plus_parser.tar").unlink()
+            tar_file.unlink()
             archive.unlink()
