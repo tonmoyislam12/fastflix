@@ -42,6 +42,7 @@ if __name__ == "__main__":
         if archive.is_file() and "hdr10plus_parser" in archive.name:
             extract_command_1 = run([zipper, "e", str(archive.name)], cwd=workdir)
             extract_command_1.check_returncode()
+            print(list(Path("tools").iterdir()))
             extract_command_2 = run([zipper, "e", f"-ohdr10plus_parser", "hdr10plus_parser.tar"], cwd=workdir)
             extract_command_2.check_returncode()
             Path("hdr10plus_parser.tar").unlink()

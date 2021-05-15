@@ -26,7 +26,11 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
 
-    - name: Insatll requirements
+    - name: Grab extra tools
+      shell: cmd
+      run: python download_extra.py
+
+    - name: Install requirements
       shell: cmd
       run: |
         python -m pip install --upgrade pip setuptools --ignore-installed
@@ -38,10 +42,6 @@ jobs:
       run: |
         copy $(python -c "import iso639; print(iso639.mapping.TABLE_PATH)") iso-639-3.tab
         copy $(python -c "import iso639; print(iso639.mapping.MAPPING_PATH)") iso-639-3.json
-
-    - name: Grab extra tools
-      shell: cmd
-      run: python download_extra.py
 
     - name: Build single executable
       shell: cmd
