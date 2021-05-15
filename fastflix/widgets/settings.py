@@ -116,7 +116,7 @@ class Settings(QtWidgets.QWidget):
         except ValueError:
             self.crop_detect_points_widget.setCurrentIndex(5)
 
-        nvencc_label = QtWidgets.QLabel("NVEncC")
+        nvencc_label = QtWidgets.QLabel("NVEnc")
         self.nvencc_path = QtWidgets.QLineEdit()
         if self.app.fastflix.config.nvencc:
             self.nvencc_path.setText(str(self.app.fastflix.config.nvencc))
@@ -126,15 +126,35 @@ class Settings(QtWidgets.QWidget):
         layout.addWidget(self.nvencc_path, 12, 1)
         layout.addWidget(nvenc_path_button, 12, 2)
 
+        vceenc_label = QtWidgets.QLabel("VCEEnc")
+        self.vceenc_path = QtWidgets.QLineEdit()
+        if self.app.fastflix.config.vceenc:
+            self.vceenc_path.setText(str(self.app.fastflix.config.vceenc))
+        nvenc_path_button = QtWidgets.QPushButton(icon=self.style().standardIcon(QtWidgets.QStyle.SP_DirIcon))
+        nvenc_path_button.clicked.connect(lambda: self.select_vceenc())
+        layout.addWidget(vceenc_label, 13, 0)
+        layout.addWidget(self.vceenc_path, 13, 1)
+        layout.addWidget(nvenc_path_button, 13, 2)
+
+        qsvenc_label = QtWidgets.QLabel("QSVEnc")
+        self.qsvenc_path = QtWidgets.QLineEdit()
+        if self.app.fastflix.config.qsvenc:
+            self.qsvenc_path.setText(str(self.app.fastflix.config.qsvenc))
+        nvenc_path_button = QtWidgets.QPushButton(icon=self.style().standardIcon(QtWidgets.QStyle.SP_DirIcon))
+        nvenc_path_button.clicked.connect(lambda: self.select_qsvenc())
+        layout.addWidget(qsvenc_label, 14, 0)
+        layout.addWidget(self.qsvenc_path, 14, 1)
+        layout.addWidget(nvenc_path_button, 14, 2)
+
         hdr10_parser_label = QtWidgets.QLabel(t("HDR10+ Parser"))
         self.hdr10_parser_path = QtWidgets.QLineEdit()
         if self.app.fastflix.config.hdr10plus_parser:
             self.hdr10_parser_path.setText(str(self.app.fastflix.config.hdr10plus_parser))
         nvenc_path_button = QtWidgets.QPushButton(icon=self.style().standardIcon(QtWidgets.QStyle.SP_DirIcon))
         nvenc_path_button.clicked.connect(lambda: self.select_hdr10_parser())
-        layout.addWidget(hdr10_parser_label, 13, 0)
-        layout.addWidget(self.hdr10_parser_path, 13, 1)
-        layout.addWidget(nvenc_path_button, 13, 2)
+        layout.addWidget(hdr10_parser_label, 15, 0)
+        layout.addWidget(self.hdr10_parser_path, 15, 1)
+        layout.addWidget(nvenc_path_button, 15, 2)
 
         layout.addWidget(self.use_sane_audio, 7, 0, 1, 2)
         layout.addWidget(self.disable_version_check, 8, 0, 1, 2)
@@ -149,7 +169,7 @@ class Settings(QtWidgets.QWidget):
         button_layout.addWidget(cancel)
         button_layout.addWidget(save)
 
-        layout.addLayout(button_layout, 15, 0, 1, 3)
+        layout.addLayout(button_layout, 16, 0, 1, 3)
 
         self.setLayout(layout)
 
@@ -193,6 +213,16 @@ class Settings(QtWidgets.QWidget):
             restart_needed = True
         self.app.fastflix.config.nvencc = new_nvencc
 
+        new_vceenc = Path(self.vceenc_path.text()) if self.vceenc_path.text() else None
+        if self.app.fastflix.config.vceenc != new_vceenc:
+            restart_needed = True
+        self.app.fastflix.config.vceenc = new_vceenc
+
+        new_qsvenc = Path(self.qsvenc_path.text()) if self.qsvenc_path.text() else None
+        if self.app.fastflix.config.qsvenc != new_qsvenc:
+            restart_needed = True
+        self.app.fastflix.config.qsvenc = new_qsvenc
+
         new_hdr10_parser = Path(self.hdr10_parser_path.text()) if self.hdr10_parser_path.text() else None
         if self.app.fastflix.config.hdr10plus_parser != new_hdr10_parser:
             restart_needed = True
@@ -221,6 +251,24 @@ class Settings(QtWidgets.QWidget):
         if not filename or not filename[0]:
             return
         self.nvencc_path.setText(filename[0])
+
+    def select_qsvenc(self):
+        dirname = Path(self.qsvenc_path.text()).parent
+        if not dirname.exists():
+            dirname = Path()
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, caption="qsvenc location", directory=str(dirname))
+        if not filename or not filename[0]:
+            return
+        self.qsvenc_path.setText(filename[0])
+
+    def select_vceenc(self):
+        dirname = Path(self.vceenc_path.text()).parent
+        if not dirname.exists():
+            dirname = Path()
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, caption="vceenc location", directory=str(dirname))
+        if not filename or not filename[0]:
+            return
+        self.vceenc_path.setText(filename[0])
 
     def select_hdr10_parser(self):
         dirname = Path(self.hdr10_parser_path.text()).parent

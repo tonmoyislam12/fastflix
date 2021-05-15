@@ -11,6 +11,10 @@ for root, dirs, files in os.walk('fastflix'):
 	for file in files:
 		all_fastflix_files.append((os.path.join(root,file), root))
 
+for root, dirs, files in os.walk('tools'):
+    for file in files:
+        all_fastflix_files.append((os.path.join(root,file), root))
+
 all_imports = collect_submodules('pydantic') + ['dataclasses', 'colorsys', 'typing_extensions']
 with open("requirements.txt", "r") as reqs:
     for line in reqs:

@@ -35,7 +35,6 @@ ffmpeg_folder = Path(user_data_dir("FFmpeg", appauthor=False, roaming=True))
 
 NO_OPT = object()
 
-
 outdated_settings = ("copy",)
 
 
@@ -110,8 +109,15 @@ def find_ffmpeg_file(name, raise_on_missing=False):
     return None
 
 
-def where(filename: str) -> Optional[Path]:
-    if location := shutil.which(filename):
+def where(program_name: str) -> Optional[Path]:
+    directory = Path(__file__).parent.parent.parent / "tools" / program_name
+    if directory.exists():
+        exe = directory / f"{program_name}64.exe"
+        if exe.exists():
+            return exe
+    if location := shutil.which(f"{program_name}64"):
+        return Path(location)
+    if location := shutil.which(program_name):
         return Path(location)
     return None
 
@@ -123,6 +129,8 @@ class Config(BaseModel):
     ffprobe: Path = Field(default_factory=lambda: find_ffmpeg_file("ffprobe"))
     hdr10plus_parser: Optional[Path] = Field(default_factory=lambda: where("hdr10plus_parser"))
     nvencc: Optional[Path] = Field(default_factory=lambda: where("NVEncC"))
+    vceenc: Optional[Path] = Field(default_factory=lambda: where("VCEEncC"))
+    qsvenc: Optional[Path] = Field(default_factory=lambda: where("QSVEncC"))
     output_directory: Optional[Path] = False
     source_directory: Optional[Path] = False
     output_name_format: str = "{source}-fastflix-{rand_4}.{ext}"
@@ -195,7 +203,7 @@ class Config(BaseModel):
                 "there may be non-recoverable errors while loading it."
             )
 
-        paths = ("work_path", "ffmpeg", "ffprobe", "hdr10plus_parser", "nvencc", "output_directory", "source_directory")
+        paths = ("work_path", "ffmpeg", "ffprobe", "output_directory", "source_directory")
         for key, value in data.items():
             if key == "profiles":
                 self.profiles = {}
@@ -219,7 +227,10 @@ class Config(BaseModel):
 
                     self.profiles[k] = profile
                 continue
-            if key in self and key not in ("config_path", "version"):
+            if key in ("nvencc", "vceenc", "qsvenc", "hdr10plus_parser"):
+                if value and Path(value).exists():
+                    setattr(self, key, Path(value))
+            elif key in self and key not in ("config_path", "version"):
                 setattr(self, key, Path(value) if key in paths and value else value)
 
         if not self.ffmpeg or not self.ffmpeg.exists():
@@ -232,10 +243,6 @@ class Config(BaseModel):
                     self.ffprobe = find_ffmpeg_file("ffmpeg.ffprobe", raise_on_missing=True)
                 except MissingFF:
                     raise err from None
-        if not self.hdr10plus_parser:
-            self.hdr10plus_parser = where("hdr10plus_parser")
-        if not self.nvencc:
-            self.nvencc = where("NVEncC")
         self.profiles.update(get_preset_defaults())
 
         if self.selected_profile not in self.profiles:
