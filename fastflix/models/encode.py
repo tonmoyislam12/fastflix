@@ -99,6 +99,34 @@ class FFmpegNVENCSettings(EncoderSettings):
     b_ref_mode: str = "disabled"
 
 
+class VCEEncCSettings(EncoderSettings):
+    name = "HEVC (VCEEncC)"
+    preset: str = "balanced"
+    profile: str = "main"
+    tier: str = "high"
+    bitrate: Optional[str] = "5000k"
+    bitrate_mode: str = "vbr"
+    cqp: Optional[str] = None
+    hdr10plus_metadata: str = ""
+    min_qp: Optional[str] = None
+    max_qp: Optional[str] = None
+
+
+class QSVEncCSettings(EncoderSettings):
+    name = "HEVC (QSVEncC)"
+    quality: str = "balanced"
+    profile: str = "main"
+    bitrate: Optional[str] = "5000k"
+    bitrate_mode: str = "vbr"
+    cqp: Optional[str] = None
+    min_q_i: Optional[str] = None
+    min_q_p: Optional[str] = None
+    min_q_b: Optional[str] = None
+    max_q_i: Optional[str] = None
+    max_q_p: Optional[str] = None
+    max_q_b: Optional[str] = None
+
+
 class NVEncCSettings(EncoderSettings):
     name = "HEVC (NVEncC)"
     preset: str = "quality"

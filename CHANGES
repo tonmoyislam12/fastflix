@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 4.3.0
+
+* Adding Hardware encoder support (QSV, NVENC, VCE)
+* Bundling Hardware encoders on Windows installer
+
 ## Version 4.2.3
 
 * Fixing that the queue would not update errored films correctly

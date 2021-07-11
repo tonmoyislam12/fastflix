@@ -58,11 +58,13 @@ jobs:
       run: |
         makensis.exe FastFlix.nsi
         move FastFlix_installer.exe FastFlix_${{ env.VERSION }}_installer.exe
+        echo "${{ hashFiles('FastFlix_${{ env.VERSION }}_installer.exe') }}"
 
     - name: Test executable
       run: |
         dist\FastFlix.exe --version
         dist\FastFlix.exe --test
+        echo "${{ hashFiles('dist\FastFlix.exe') }}"
 
     - name: Package single executable
       shell: cmd

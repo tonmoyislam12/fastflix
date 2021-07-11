@@ -1,3 +1,15 @@
+---------
+DUAL LICENSE - PLEASE READ!
+
+FastFlix's code itself is MIT licensed.
+
+When bundled into an executable, the software becomes GPL v3 licensed
+(due to lack of ability to easily switch between pyqt5 and pyside2)
+
+----------
+
+# FastFlix Code Only
+
 The MIT License
 
 Copyright (c) 2019-2021 Chris Griffith
@@ -19,3 +31,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+# FastFlix Executable
+
+GPL v3 which can be found https://www.gnu.org/licenses/gpl-3.0.en.html
