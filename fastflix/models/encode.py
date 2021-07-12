@@ -22,6 +22,8 @@ class AudioTrack(BaseModel):
     channels: int = 2
     friendly_info: str = ""
     raw_info: Optional[Union[Dict, Box]] = None
+    filter_text: str = ""
+    channel_layout: str = ""
 
 
 class SubtitleTrack(BaseModel):

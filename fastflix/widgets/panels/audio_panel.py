@@ -11,7 +11,7 @@ from fastflix.encoders.common.audio import lossless, channel_list
 from fastflix.language import t
 from fastflix.models.encode import AudioTrack
 from fastflix.models.fastflix_app import FastFlixApp
-from fastflix.resources import black_x_icon, copy_icon, down_arrow_icon, up_arrow_icon
+from fastflix.resources import black_x_icon, copy_icon, down_arrow_icon, up_arrow_icon, sound_wave_icon
 from fastflix.shared import no_border, error_message
 from fastflix.widgets.panels.abstract_list import FlixList
 
@@ -29,6 +29,8 @@ class Audio(QtWidgets.QTabWidget):
         title="",
         language="",
         profile="",
+        filter_text="",
+        channel_layout="",
         outdex=None,
         enabled=True,
         original=False,
@@ -56,6 +58,8 @@ class Audio(QtWidgets.QTabWidget):
         self.channels = channels
         self.available_audio_encoders = available_audio_encoders
         self.all_info = all_info
+        self.filter_text = filter_text
+        self.channel_layout = channel_layout
 
         self.widgets = Box(
             track_number=QtWidgets.QLabel(f"{index}:{self.outdex}" if enabled else "❌"),
@@ -70,7 +74,10 @@ class Audio(QtWidgets.QTabWidget):
             downmix=QtWidgets.QComboBox(),
             convert_to=None,
             convert_bitrate=None,
+            filters_button=QtWidgets.QPushButton(QtGui.QIcon(sound_wave_icon), ""),
         )
+        self.widgets.filters_button.clicked.connect(self.get_filters)
+        self.widgets.filters_button.setToolTip(t("Custom Filters"))
 
         self.widgets.up_button.setStyleSheet(no_border)
         self.widgets.down_button.setStyleSheet(no_border)
@@ -126,7 +133,7 @@ class Audio(QtWidgets.QTabWidget):
         grid.addWidget(self.widgets.track_number, 0, 1)
         grid.addWidget(self.widgets.audio_info, 0, 2)
         grid.addLayout(title_layout, 0, 3)
-        # grid.addWidget(self.widgets.title, 0, 4)
+        grid.addWidget(self.widgets.filters_button, 0, 4)
         grid.addLayout(self.init_conversion(), 0, 5)
         grid.addWidget(self.widgets.downmix, 0, 6)
         grid.addWidget(self.widgets.language, 0, 7)
@@ -143,6 +150,17 @@ class Audio(QtWidgets.QTabWidget):
             grid.addWidget(self.widgets.dup_button, 0, right_button_start_index + 1)
         self.setLayout(grid)
         self.loading = False
+
+    def get_filters(self):
+        text, accepted = QtWidgets.QInputDialog.getText(
+            self,
+            "Fastflix - Audio Filters",
+            "Custom FFmpeg Audio Filters",
+            text=self.filter_text,
+        )
+        if accepted:
+            self.filter_text = text
+        self.page_update()
 
     def init_move_buttons(self):
         layout = QtWidgets.QVBoxLayout()
@@ -311,6 +329,8 @@ class Audio(QtWidgets.QTabWidget):
             original=False,
             codecs=self.codecs,
             channels=self.channels,
+            filter_text=self.filter_text,
+            channel_layout=self.channel_layout,
         )
 
         self.parent.tracks.append(new)
@@ -387,6 +407,7 @@ class AudioList(FlixList):
                 enabled=self.lang_match(x),
                 all_info=x,
                 disable_dup=disable_dup,
+                channel_layout=x.channel_layout,
             )
             self.tracks.append(new_item)
 
@@ -437,6 +458,8 @@ class AudioList(FlixList):
                         original=track.original,
                         raw_info=track.all_info,
                         friendly_info=track.audio,
+                        filter_text=track.filter_text,
+                        channel_layout=track.channel_layout,
                     )
                 )
         self.app.fastflix.current_video.video_settings.audio_tracks = tracks
@@ -465,6 +488,8 @@ class AudioList(FlixList):
                 available_audio_encoders=self.available_audio_encoders,
                 enabled=True,
                 disable_dup=disable_dups,
+                filter_text=track.filter_text,
+                channel_layout=track.channel_layout,
             )
 
             new_track.widgets.downmix.setCurrentText(track.downmix)
@@ -508,6 +533,7 @@ class AudioList(FlixList):
                 enabled=False,
                 all_info=x,
                 disable_dup=disable_dups,
+                channel_layout=x.channel_layout,
             )
             self.tracks.append(new_item)
 

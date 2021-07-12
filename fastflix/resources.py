@@ -37,4 +37,5 @@ working_icon = str(Path(pkg_resources.resource_filename(__name__, "data/icons/pe
 advanced_icon = str(Path(pkg_resources.resource_filename(__name__, "data/icons/advanced.png")).resolve())
 info_icon = str(Path(pkg_resources.resource_filename(__name__, "data/icons/info.png")).resolve())
 undo_icon = str(Path(pkg_resources.resource_filename(__name__, "data/icons/undo-arrow.png")).resolve())
+sound_wave_icon = str(Path(pkg_resources.resource_filename(__name__, "data/icons/sound-wave.png")).resolve())
 loading_movie = str(Path(pkg_resources.resource_filename(__name__, "data/icons/loading.gif")).resolve())
