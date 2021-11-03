@@ -86,6 +86,21 @@ class Profile(BaseModel):
 empty_profile = Profile(x265=x265Settings())
 
 
+class AudioProfile(BaseModel):
+    audio_language: Optional[str] = None
+    audio_select: bool = True
+    audio_select_preferred_language: bool = True
+    audio_select_first_matching: bool = False
+
+
+class SubtitleProfile(BaseModel):
+    subtitle_language: str = "en"
+    subtitle_select: bool = True
+    subtitle_select_preferred_language: bool = True
+    subtitle_automatic_burn_in: bool = False
+    subtitle_select_first_matching: bool = False
+
+
 def get_preset_defaults():
     return {
         "Standard Profile": Profile(x265=x265Settings()),
